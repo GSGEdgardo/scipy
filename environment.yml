@@ -1,0 +1,7 @@
+name: scipy
+channels:
+    - conda-forge
+    - defaults
+dependencies:
+    - python=3.12.9
+    - pip=25.0
