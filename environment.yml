@@ -1,7 +1,9 @@
 name: scipy
 channels:
-    - conda-forge
-    - defaults
+  - conda-forge
+  - defaults
 dependencies:
-    - python=3.12.9
-    - pip=25.0
+  - python=3.12.9
+  - pip=25.0
+  - pip:
+      - black==25.1.0
