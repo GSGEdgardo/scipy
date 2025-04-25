@@ -73,9 +73,87 @@ def expandir(estado):
 
     return nuevo_estado
 
+def reducir(estado):
+    """
+    Elimina las filas y columnas sobrantes en la matriz luego de una expansion
+    """
+
+    n_filas = len(estado)
+    n_columnas = len(estado[0])
+
+    nuevo_estado = []
+
+    filas_sobrantes_superior = 0
+    filas_sobrantes_inferior = 0
+    columnas_sobrantes_izquierda = 0
+    columnas_sobrantes_derecha = 0
+
+    for fila in range(n_filas):
+        condicion_ceros = True
+        for columna in range(n_columnas):
+            if estado[fila][columna] != 0:
+                condicion_ceros = False
+                break
+        if condicion_ceros:
+            filas_sobrantes_superior += 1
+        else:
+            break
+
+    for fila in range(n_filas - 1, -1, -1):
+        condicion_ceros = True
+        for columna in range(n_columnas):
+            if estado[fila][columna] != 0:
+                condicion_ceros = False
+                break
+        if condicion_ceros:
+            filas_sobrantes_inferior += 1
+        else:
+            break
+
+    for columna in range(n_columnas):
+        condicion_ceros = True
+        for fila in range(n_filas   ):
+            if estado[fila][columna] != 0:
+                condicion_ceros = False
+                break
+        if condicion_ceros:
+            columnas_sobrantes_izquierda += 1
+        else:
+            break
+
+    for columna in range(n_columnas - 1, -1, -1):
+        condicion_ceros = True
+        for fila in range(n_filas):
+            if estado[fila][columna] != 0:
+                condicion_ceros = False
+                break
+        if condicion_ceros:
+            columnas_sobrantes_derecha += 1
+        else:
+            break
+
+    fila_inicio = filas_sobrantes_superior
+    fila_final = n_filas - filas_sobrantes_inferior
+    columna_inicio = columnas_sobrantes_izquierda
+    columna_final = n_columnas - columnas_sobrantes_derecha
+
+    if fila_inicio >= fila_final or columna_inicio >= columna_final:
+        print(f"Se acabo la vida dentro de la matriz")
+        return [[0]] # Retorno una matriz vacia
+
+    for fila in range(fila_inicio, fila_final):
+        nueva_fila = []
+        for columna in range(columna_inicio, columna_final):
+            nueva_fila.append(estado[fila][columna])
+        nuevo_estado.append(nueva_fila)
+
+
+    return nuevo_estado
+
 
 def evolucionar(estado):
     estado = expandir(estado)
+
     nuevo_estado = crear_nuevo_estado(estado)
 
     for f in range(len(estado)):
@@ -92,7 +170,6 @@ def evolucionar(estado):
                     nuevo_estado[f][c] = 1
                 else:
                     nuevo_estado[f][c] = 0
-
     return nuevo_estado
 
 
@@ -117,8 +194,10 @@ def main():
     print(f"Estado inicial con poblacion de: {contar_poblacion(estado)}")
     imprimir_estado(estado)
 
-    for i in range(10):
+    print(f"Matriz reducida:")
+    for i in range(150):
         estado = evolucionar(estado)
+        estado = reducir(estado)
         print(f"Generacion {i+1} con poblacion de: {contar_poblacion(estado)}")
         imprimir_estado(estado)
 
