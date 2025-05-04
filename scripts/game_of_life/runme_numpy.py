@@ -73,6 +73,39 @@ class GameOfLife:
                 )
             )
 
+    def expand(self):
+        # Creates a new state with an extra row and column at the beginning and end
+        new_state = np.zeros((self.state.shape[0] + 2, self.state.shape[1] + 2), dtype=int)
+        # Fill the new state with the current state
+        new_state[1:-1, 1:-1] = self.state
+        self.state = new_state
+
+    def reduce(self):
+        row, col = self.state.shape
+
+        def empty_row(r):
+            return np.all(self.state[r,:] == self.DEAD)
+        def empty_col(c):
+            return np.all(self.state[:, c] == self.DEAD)
+
+        top = 0
+        while top < row and empty_row(top): top += 1
+
+        bottom = row - 1
+        while bottom >= 0 and empty_row(bottom): bottom -= 1
+
+        left = 0
+        right = col - 1
+        while left < col and empty_col(left): left += 1
+        while right >= 0 and empty_col(right): right -= 1
+
+        if top > bottom or left > right:
+            print(f"The simulation is over, the cell population is {self.population()}")
+            self.state = np.array([0])
+        else:
+            self.state = self.state[top:bottom+1, left:right+1]
+
+
 def main():
     state = [
         [1, 1, 0],
