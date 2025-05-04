@@ -21,7 +21,7 @@ class GameOfLife:
     generation: int = 0
 
     # Maximum number of generations allowed
-    max_generations: int = 1000
+    max_generations: int = 151
 
     # Character used to represent a dead cell
     dead_cell_char: str = " "
@@ -105,6 +105,40 @@ class GameOfLife:
         else:
             self.state = self.state[top:bottom+1, left:right+1]
 
+    def count_neighbors(self, row: int, col: int) -> int:
+        neighbors = 0
+        for r in range(row-1, row+2):
+            for c in range(col-1, col+2):
+                if (r == row and c == col or
+                    r < 0 or c < 0 or
+                    r >= self.state.shape[0] or
+                    c >= self.state.shape[1]):
+                    continue
+                if self.state[r][c] == self.ALIVE:
+                    neighbors += 1
+        return neighbors
+
+    def evolve(self):
+        self.expand()
+        new_state = np.zeros_like(self.state)
+        row, col = self.state.shape
+
+        for r in range(row):
+            for c in range(col):
+                neighbors = self.count_neighbors(r, c)
+                if self.state[r][c] == self.ALIVE:
+                    if neighbors < 2 or neighbors > 3:
+                        new_state[r][c] = self.DEAD
+                    else:
+                        new_state[r][c] = self.ALIVE
+                else:
+                    if neighbors == 3:
+                        new_state[r][c] = self.ALIVE
+                    else:
+                        new_state[r][c] = self.DEAD
+        self.state = new_state
+        self.reduce()
+        self.generation += 1
 
 def main():
     state = [
@@ -117,6 +151,11 @@ def main():
     game_of_life = GameOfLife.from_list(state)
     print(f"The current live cells is {game_of_life.population()}")
     game_of_life.print_state()
+
+    for _ in range(game_of_life.max_generations):
+        game_of_life.evolve()
+        print(f"Generation {game_of_life.generation}, population {game_of_life.population()}")
+        game_of_life.print_state()
 
 
 if __name__ == "__main__":
