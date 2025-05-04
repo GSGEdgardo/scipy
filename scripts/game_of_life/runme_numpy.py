@@ -11,7 +11,29 @@ from typeguard import typechecked
 class GameOfLife:
     """
     Conway's Game of Life implementation.
-    TODO: (eortiz) write full documentation.
+    A Python implementation of Conway's Game of Life, a cellular automaton
+    devised by John Conway in 1970.
+
+    The game of life consist of a 2D grid of cells, each of which can be either
+    alive or dead. There's a simple set of rules that determine the next state
+    of the grid based on the current state. The rules are as follows:
+    1. Any live cell with fewer than two live neighbors dies as if caused by
+    under-population.
+    2. Any live cell with two or three live neighbors lives on to the next
+    generation.
+    3. Any live cell with more than three live neighbors dies, as if by
+    over-population.
+    4. Any dead cell with exactly three live neighbors becomes a live cell,
+    as if by reproduction.
+
+    The game is played in generations, where each generation is a new state
+    of the grid.
+    The game ends when there are no live cells left or when the grid reaches a
+    stable state.
+    The class provides methods to evolve the game, print the current state,
+    and count the population.
+    The class also provides a method to create a new game from a list of lists.
+    The class uses NumPy for efficient array manipulation and type checking.
     """
 
     # The state of the Game of Life (2D grid)
@@ -58,10 +80,12 @@ class GameOfLife:
 
         return cls(state=np.array(initial_state))
 
+    # Returns the number of currently alive cells.
     def population(self) -> np.int64:
         # Sum the ALIVE cells
         return np.sum(self.state)
 
+    # Prints the current grid state using live/dead cell characters.
     def print_state(self):
         for row in self.state:
             print(
@@ -73,13 +97,13 @@ class GameOfLife:
                 )
             )
 
+    # Adds a 1-cell border of DEAD cells around the current state to allow growth.
     def expand(self):
-        # Creates a new state with an extra row and column at the beginning and end
         new_state = np.zeros((self.state.shape[0] + 2, self.state.shape[1] + 2), dtype=int)
-        # Fill the new state with the current state
         new_state[1:-1, 1:-1] = self.state
         self.state = new_state
 
+    # Trims any completely empty rows or columns from the edges of the grid.
     def reduce(self):
         row, col = self.state.shape
 
@@ -105,6 +129,7 @@ class GameOfLife:
         else:
             self.state = self.state[top:bottom+1, left:right+1]
 
+    # Returns the number of ALIVE neighbors around a given cell.
     def count_neighbors(self, row: int, col: int) -> int:
         neighbors = 0
         for r in range(row-1, row+2):
@@ -118,6 +143,7 @@ class GameOfLife:
                     neighbors += 1
         return neighbors
 
+    # Evolves the game state to the next generation based on the rules of the game.
     def evolve(self):
         self.expand()
         new_state = np.zeros_like(self.state)
@@ -149,9 +175,11 @@ def main():
 
     # The object Game Of Life
     game_of_life = GameOfLife.from_list(state)
+    # Print the initial state
     print(f"The current live cells is {game_of_life.population()}")
     game_of_life.print_state()
 
+    # Evolve the game for a number of generations
     for _ in range(game_of_life.max_generations):
         game_of_life.evolve()
         print(f"Generation {game_of_life.generation}, population {game_of_life.population()}")
