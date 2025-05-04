@@ -75,7 +75,7 @@ class GameOfLife:
 
     @classmethod
     @typechecked
-    def from_list(cls, initial_state: List[List[int]]) -> 'GameOfLife':
+    def from_list(cls, initial_state: List[List[int]]) -> "GameOfLife":
         # TODO: (eortiz) validate the initial state
 
         return cls(state=np.array(initial_state))
@@ -90,16 +90,16 @@ class GameOfLife:
         for row in self.state:
             print(
                 "".join(
-                    self.live_cell_char
-                    if cell == self.ALIVE
-                    else self.dead_cell_char
+                    self.live_cell_char if cell == self.ALIVE else self.dead_cell_char
                     for cell in row
                 )
             )
 
     # Adds a 1-cell border of DEAD cells around the current state to allow growth.
     def expand(self):
-        new_state = np.zeros((self.state.shape[0] + 2, self.state.shape[1] + 2), dtype=int)
+        new_state = np.zeros(
+            (self.state.shape[0] + 2, self.state.shape[1] + 2), dtype=int
+        )
         new_state[1:-1, 1:-1] = self.state
         self.state = new_state
 
@@ -108,36 +108,45 @@ class GameOfLife:
         row, col = self.state.shape
 
         def empty_row(r):
-            return np.all(self.state[r,:] == self.DEAD)
+            return np.all(self.state[r, :] == self.DEAD)
+
         def empty_col(c):
             return np.all(self.state[:, c] == self.DEAD)
 
         top = 0
-        while top < row and empty_row(top): top += 1
+        while top < row and empty_row(top):
+            top += 1
 
         bottom = row - 1
-        while bottom >= 0 and empty_row(bottom): bottom -= 1
+        while bottom >= 0 and empty_row(bottom):
+            bottom -= 1
 
         left = 0
         right = col - 1
-        while left < col and empty_col(left): left += 1
-        while right >= 0 and empty_col(right): right -= 1
+        while left < col and empty_col(left):
+            left += 1
+        while right >= 0 and empty_col(right):
+            right -= 1
 
         if top > bottom or left > right:
             print(f"The simulation is over, the cell population is {self.population()}")
             self.state = np.array([0])
         else:
-            self.state = self.state[top:bottom+1, left:right+1]
+            self.state = self.state[top : bottom + 1, left : right + 1]
 
     # Returns the number of ALIVE neighbors around a given cell.
     def count_neighbors(self, row: int, col: int) -> int:
         neighbors = 0
-        for r in range(row-1, row+2):
-            for c in range(col-1, col+2):
-                if (r == row and c == col or
-                    r < 0 or c < 0 or
-                    r >= self.state.shape[0] or
-                    c >= self.state.shape[1]):
+        for r in range(row - 1, row + 2):
+            for c in range(col - 1, col + 2):
+                if (
+                    r == row
+                    and c == col
+                    or r < 0
+                    or c < 0
+                    or r >= self.state.shape[0]
+                    or c >= self.state.shape[1]
+                ):
                     continue
                 if self.state[r][c] == self.ALIVE:
                     neighbors += 1
@@ -166,6 +175,7 @@ class GameOfLife:
         self.reduce()
         self.generation += 1
 
+
 def main():
     state = [
         [1, 1, 0],
@@ -182,7 +192,9 @@ def main():
     # Evolve the game for a number of generations
     for _ in range(game_of_life.max_generations):
         game_of_life.evolve()
-        print(f"Generation {game_of_life.generation}, population {game_of_life.population()}")
+        print(
+            f"Generation {game_of_life.generation}, population {game_of_life.population()}"
+        )
         game_of_life.print_state()
 
 
