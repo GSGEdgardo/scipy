@@ -3,8 +3,10 @@
 from dataclasses import dataclass
 from typing import ClassVar, List
 import numpy as np
+from matplotlib import pyplot as plt
+from tqdm import tqdm
 from typeguard import typechecked
-
+import seaborn as sns
 
 @typechecked
 @dataclass
@@ -175,6 +177,32 @@ class GameOfLife:
         self.reduce()
         self.generation += 1
 
+    def __str__(self):
+        """Return a string representation of the current state"""
+        return "\n".join(
+            "".join(
+                self.live_cell_char if cell == self.ALIVE else self.dead_cell_char
+                for cell in row
+            )
+        for row in self.state
+        )
+
+@typechecked
+def plot_game_of_life(game_of_life: GameOfLife) -> None:
+    fig = plt.figure(figsize=(10, 10), facecolor="white")
+
+    ax = plt.gca()
+    sns.heatmap(
+        game_of_life.state, #ndarray
+        cmap="binary",
+        square=True,
+        linewidths=0.25,
+        linecolor="grey",
+        ax=ax,
+    )
+
+    plt.tight_layout()
+    plt.show()
 
 def main():
     state = [
@@ -187,15 +215,21 @@ def main():
     game_of_life = GameOfLife.from_list(state)
     # Print the initial state
     print(f"The current live cells is {game_of_life.population()}")
-    game_of_life.print_state()
+    #game_of_life.print_state()
+    print(game_of_life)
 
     # Evolve the game for a number of generations
-    for _ in range(game_of_life.max_generations):
+    for _ in tqdm(
+            range(game_of_life.max_generations), desc="Evolving the Game of Life", unit="gen", ncols=80
+    ):
         game_of_life.evolve()
         print(
             f"Generation {game_of_life.generation}, population {game_of_life.population()}"
         )
-        game_of_life.print_state()
+        #game_of_life.print_state()
+        # Now thanks to __str__ method we can print the matrix
+        #print(game_of_life)
+        plot_game_of_life(game_of_life)
 
 
 if __name__ == "__main__":
