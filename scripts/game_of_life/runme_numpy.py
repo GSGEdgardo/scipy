@@ -195,9 +195,6 @@ def plot_game_of_life(game_of_life: GameOfLife) -> None:
     sns.heatmap(
         game_of_life.state, #ndarray
         cmap="binary",
-        square=True,
-        linewidths=0.25,
-        linecolor="grey",
         ax=ax,
     )
 
@@ -219,17 +216,22 @@ def main():
     print(game_of_life)
 
     # Evolve the game for a number of generations
-    for _ in tqdm(
-            range(game_of_life.max_generations), desc="Evolving the Game of Life", unit="gen", ncols=80
-    ):
-        game_of_life.evolve()
-        print(
-            f"Generation {game_of_life.generation}, population {game_of_life.population()}"
-        )
-        #game_of_life.print_state()
-        # Now thanks to __str__ method we can print the matrix
-        #print(game_of_life)
-        plot_game_of_life(game_of_life)
+
+    from tqdm import trange
+
+    # Evolve the game for a number of generations
+    with trange(game_of_life.max_generations, desc="Evolving the Game of Life", unit="gen", ncols=90) as t:
+        for _ in t:
+            game_of_life.evolve()
+            t.set_postfix({
+                "gen": game_of_life.generation,
+                "pop": game_of_life.population()
+            })
+
+            #game_of_life.print_state()
+            # Now thanks to __str__ method we can print the matrix
+            #print(game_of_life)
+            plot_game_of_life(game_of_life)
 
 
 if __name__ == "__main__":
