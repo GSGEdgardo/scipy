@@ -1,13 +1,55 @@
 # The SciPy Project
 
-This repository contains various codes, scripts, and projects developed during the Scientific Programming course.
+---
+![Python](https://img.shields.io/badge/Python-3.12.9-blue)
+![NumPy](https://img.shields.io/badge/NumPy-2.2.5-orange)
+![SciPy](https://img.shields.io/badge/SciPy-1.15.2-lightgrey)
+![conda](https://img.shields.io/badge/Conda-25.0.0-blue)
+![Last Commit](https://img.shields.io/github/last-commit/GSGEdgardo/Scipy)
+![Institution](https://img.shields.io/badge/institution-Universidad%20Cat%C3%B3lica%20del%20Norte-blue)
 
-The libraries used in this project are listed in the `environment.yml` file. The main dependencies include:
-
-- Python 3.12.9
-- NumPy 2.2.5
-- Black 25.1.0
-- Typeguard 4.4.2
+## Description
 
 ---
-(c) 2025 Magister en Informática
+This repository contains various codes, scripts, and projects developed during the Scientific Programming course.
+
+## Environment
+
+---
+The project uses a Conda environment defined in `environment.yml`.
+
+### Conda Dependencies
+- `pip=25.0`
+- `python=3.12.9`
+
+### Pip Dependencies
+- `black==25.1.0`
+- `coloredlogs==15.0.1`
+- `matplotlib==3.10.1`
+- `numpy==2.2.5`
+- `scipy==1.15.2`
+- `seaborn==0.13.2`
+- `tqdm==4.67.1`
+- `typeguard==4.4.2`
+
+## Folder Structure
+
+---
+```
+Scipy/
+│
+├── libs/                  # Reusable modules
+│   ├── benchmark.py
+│   └── logger.py
+│
+├── scripts/               # Short exercises and projects
+│   └── game_of_life/
+│
+├── .gitignore
+├── environment.yml
+├── env.example
+└── README.md
+```
+---
+
+© 2025 Magister en Informática
