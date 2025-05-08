@@ -1,6 +1,5 @@
 # The SciPy Project
 
----
 ![Python](https://img.shields.io/badge/Python-3.12.9-blue)
 ![NumPy](https://img.shields.io/badge/NumPy-2.2.5-orange)
 ![SciPy](https://img.shields.io/badge/SciPy-1.15.2-lightgrey)
@@ -10,12 +9,10 @@
 
 ## Description
 
----
 This repository contains various codes, scripts, and projects developed during the Scientific Programming course.
 
 ## Environment
 
----
 The project uses a Conda environment defined in `environment.yml`.
 
 ### Conda Dependencies
@@ -34,7 +31,6 @@ The project uses a Conda environment defined in `environment.yml`.
 
 ## Folder Structure
 
----
 ```
 Scipy/
 │
