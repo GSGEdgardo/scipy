@@ -1,12 +1,18 @@
 #  Copyright (c) 2025.  Departamento de Ingenieria de Sistemas y Computacion
-
+import logging
 from dataclasses import dataclass
-from typing import ClassVar, List
+from typing import ClassVar, List, Optional
 import numpy as np
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 from typeguard import typechecked
 import seaborn as sns
+import matplotlib
+
+from benchmark import benchmark
+from logger import configure_logging
+
+matplotlib.use("TkAgg")
 
 @typechecked
 @dataclass
@@ -78,8 +84,6 @@ class GameOfLife:
     @classmethod
     @typechecked
     def from_list(cls, initial_state: List[List[int]]) -> "GameOfLife":
-        # TODO: (eortiz) validate the initial state
-
         return cls(state=np.array(initial_state))
 
     # Returns the number of currently alive cells.
@@ -99,6 +103,10 @@ class GameOfLife:
 
     # Adds a 1-cell border of DEAD cells around the current state to allow growth.
     def expand(self):
+        """
+        Expands the grid by adding a 1-cell border of DEAD cells around the current state.
+        :return:
+        """
         new_state = np.zeros(
             (self.state.shape[0] + 2, self.state.shape[1] + 2), dtype=int
         )
@@ -107,6 +115,9 @@ class GameOfLife:
 
     # Trims any completely empty rows or columns from the edges of the grid.
     def reduce(self):
+        """
+        reduce the matrix by removing border rows and columns that contain only dead cells (zeros).
+        """
         row, col = self.state.shape
 
         def empty_row(r):
@@ -138,6 +149,9 @@ class GameOfLife:
 
     # Returns the number of ALIVE neighbors around a given cell.
     def count_neighbors(self, row: int, col: int) -> int:
+        """
+        Count the number of alive neighbors for a given cell in the state.
+        """
         neighbors = 0
         for r in range(row - 1, row + 2):
             for c in range(col - 1, col + 2):
@@ -156,6 +170,9 @@ class GameOfLife:
 
     # Evolves the game state to the next generation based on the rules of the game.
     def evolve(self):
+        """
+        Evolve the current state to the next generation.
+        """
         self.expand()
         new_state = np.zeros_like(self.state)
         row, col = self.state.shape
@@ -177,6 +194,36 @@ class GameOfLife:
         self.reduce()
         self.generation += 1
 
+    @typechecked
+    def run_simulation(
+        self,
+        max_generations: Optional[int] = None,
+        show_progress: Optional[bool] = False,
+    ) -> str:
+        """
+        Run the simulation for a given number of generations.
+        """
+        if max_generations is None:
+            max_generations = self.max_generations
+
+        if max_generations <= 0:
+            raise ValueError("max_generations must be positive")
+
+        for _ in tqdm(
+            range(0, max_generations),
+            desc="Evolving generations",
+            unit="gen",
+            ncols=200,
+            disable=not show_progress,
+        ):
+            # generate the next generation
+            self.evolve()
+            # if the population is 0, break the loop
+            if self.population() == 0:
+                return "WARN: Stopping simulation at:\n" + str(self)
+
+        return str(self)
+
     def __str__(self):
         """Return a string representation of the current state"""
         return "\n".join(
@@ -188,20 +235,69 @@ class GameOfLife:
         )
 
 @typechecked
-def plot_game_of_life(game_of_life: GameOfLife) -> None:
-    fig = plt.figure(figsize=(10, 10), facecolor="white")
+def plot_game_of_life(game_of_life: GameOfLife, path: Optional[str] = None) -> None:
+    fig = plt.figure(facecolor="white", dpi=200)
 
     ax = plt.gca()
+    ax.set_axis_off()
+
     sns.heatmap(
         game_of_life.state, #ndarray
         cmap="binary",
+        cbar=False,
+        square=True,
+        linewidths=0.25,
+        linecolor='#f0f0f0', # rgb
         ax=ax,
     )
 
+    # Set the title
+    plt.title("The Conway's Game of Life")
+
+    # create some stats
+    total_space = game_of_life.state.shape[0] * game_of_life.state.shape[1]
+    density = game_of_life.population() / total_space
+    stats=(
+        f"Generation: {game_of_life.generation}\n",
+        f"Population: {game_of_life.population()}\n",
+        f"Max generations: {game_of_life.max_generations}\n",
+        f"Grid size: {game_of_life.state.shape[0]} x {game_of_life.state.shape[1]}\n"
+        f"Density: {density:.2f}\n"
+    )
+    # plot the stats
+    plt.figtext(
+        x=0.99,
+        y=0.01,
+        s="\n".join(stats),
+        horizontalalignment="right",
+        verticalalignment="bottom",
+        fontsize=10,
+        bbox=dict(facecolor="white", alpha=0.8, boxstyle="round", pad=0.5) #alpha is transparency
+    )
     plt.tight_layout()
+
+    if path is not None:
+        plt.savefig(
+            f"{path}/game_of_life-{game_of_life.generation:04d}.png",
+            dpi=200,
+            bbox_inches="tight",
+        )
+
     plt.show()
 
+
 def main():
+    # configure the logger
+    configure_logging()
+
+    # hide some libraries
+    logging.getLogger("matplotlib").setLevel(logging.WARNING)
+    logging.getLogger("PIL").setLevel(logging.WARNING)
+
+    # get the logger
+    log = logging.getLogger(__name__)
+    log.debug("Starting the Game of Life simulation")
+
     state = [
         [1, 1, 0],
         [0, 1, 1],
@@ -212,27 +308,19 @@ def main():
     game_of_life = GameOfLife.from_list(state)
     # Print the initial state
     print(f"The current live cells is {game_of_life.population()}")
-    #game_of_life.print_state()
     print(game_of_life)
 
-    # Evolve the game for a number of generations
+    # run the simulation
+    with benchmark(
+        operation_name="run_simulation",
+        log=log
+    ):
+        game_of_life.run_simulation(max_generations=150, show_progress=True)
 
-    from tqdm import trange
-
-    # Evolve the game for a number of generations
-    with trange(game_of_life.max_generations, desc="Evolving the Game of Life", unit="gen", ncols=90) as t:
-        for _ in t:
-            game_of_life.evolve()
-            t.set_postfix({
-                "gen": game_of_life.generation,
-                "pop": game_of_life.population()
-            })
-
-            #game_of_life.print_state()
-            # Now thanks to __str__ method we can print the matrix
-            #print(game_of_life)
-            plot_game_of_life(game_of_life)
-
+    # print the final state
+    print(game_of_life)
+    plot_game_of_life(game_of_life, path="../../output/")
+    log.debug("The Game of Life simulation is over")
 
 if __name__ == "__main__":
     main()
