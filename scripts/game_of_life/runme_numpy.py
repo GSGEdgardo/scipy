@@ -8,7 +8,7 @@ from tqdm import tqdm
 from typeguard import typechecked
 import seaborn as sns
 import matplotlib
-
+from scipy.signal import convolve2d
 from benchmark import benchmark
 from logger import configure_logging
 
@@ -148,25 +148,25 @@ class GameOfLife:
             self.state = self.state[top : bottom + 1, left : right + 1]
 
     # Returns the number of ALIVE neighbors around a given cell.
-    def count_neighbors(self, row: int, col: int) -> int:
+    def count_neighbors(self) -> np.ndarray:
         """
         Count the number of alive neighbors for a given cell in the state.
         """
-        neighbors = 0
-        for r in range(row - 1, row + 2):
-            for c in range(col - 1, col + 2):
-                if (
-                    r == row
-                    and c == col
-                    or r < 0
-                    or c < 0
-                    or r >= self.state.shape[0]
-                    or c >= self.state.shape[1]
-                ):
-                    continue
-                if self.state[r][c] == self.ALIVE:
-                    neighbors += 1
-        return neighbors
+        # Define the kernel for counting neighbors
+        # The kernel is a 3x3 matrix with 1s in all positions except the center
+        # The center position is 0 because we don't want to count the cell itself
+        kernel = np.array([
+            [1, 1, 1],
+            [1, 0, 1],
+            [1, 1, 1],
+        ])
+        """
+        convolve2d is a function from scipy that performs a 2D convolution
+        a convolution is a mathematical operation that combines two functions
+        in this case, we are combining the kernel with the state
+        The result is a 2D array where each cell contains the number of alive neighbors
+        """
+        return convolve2d(self.state, kernel, mode="same", boundary="fill", fillvalue=0)
 
     # Evolves the game state to the next generation based on the rules of the game.
     def evolve(self):
@@ -174,22 +174,15 @@ class GameOfLife:
         Evolve the current state to the next generation.
         """
         self.expand()
+        neighbors = self.count_neighbors()
         new_state = np.zeros_like(self.state)
-        row, col = self.state.shape
+        """
+        np.logical_and is a function that returns the logical AND of two arrays
+        and here is used to combine the conditions for the alive and dead cells
+        """
+        new_state[np.logical_and(self.state == self.ALIVE, np.logical_or(neighbors == 2, neighbors == 3))] = self.ALIVE
+        new_state[np.logical_and(self.state == self.DEAD, neighbors == 3)] = self.ALIVE
 
-        for r in range(row):
-            for c in range(col):
-                neighbors = self.count_neighbors(r, c)
-                if self.state[r][c] == self.ALIVE:
-                    if neighbors < 2 or neighbors > 3:
-                        new_state[r][c] = self.DEAD
-                    else:
-                        new_state[r][c] = self.ALIVE
-                else:
-                    if neighbors == 3:
-                        new_state[r][c] = self.ALIVE
-                    else:
-                        new_state[r][c] = self.DEAD
         self.state = new_state
         self.reduce()
         self.generation += 1
@@ -315,7 +308,7 @@ def main():
         operation_name="run_simulation",
         log=log
     ):
-        game_of_life.run_simulation(max_generations=150, show_progress=True)
+        game_of_life.run_simulation(max_generations=1000, show_progress=True)
 
     # print the final state
     print(game_of_life)
