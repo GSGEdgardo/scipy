@@ -30,7 +30,7 @@ The project uses a Conda environment defined in `environment.yml`.
 - `seaborn==0.13.2`
 - `tqdm==4.67.1`
 - `typeguard==4.4.2`
-- ydata-profiling==4.16.1
+- `ydata-profiling==4.16.1`
 
 ## Folder Structure
 
