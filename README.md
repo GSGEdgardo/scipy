@@ -23,17 +23,24 @@ The project uses a Conda environment defined in `environment.yml`.
 - `black==25.1.0`
 - `coloredlogs==15.0.1`
 - `matplotlib==3.10.1`
+- `mpld3==0.5.10`
 - `numpy==2.2.5`
+- `pandas==2.2.3`
 - `scipy==1.15.2`
 - `seaborn==0.13.2`
 - `tqdm==4.67.1`
 - `typeguard==4.4.2`
+- ydata-profiling==4.16.1
 
 ## Folder Structure
 
 ```
 Scipy/
 │
+├── data/                  # multiple data files for projects
+|
+├── output/                # here goes plots, reports or images generated via scripts
+|
 ├── libs/                  # Reusable modules
 │   ├── benchmark.py
 │   └── logger.py
