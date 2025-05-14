@@ -9,8 +9,8 @@ from typeguard import typechecked
 import seaborn as sns
 import matplotlib
 from scipy.signal import convolve2d
-from benchmark import benchmark
-from logger import configure_logging
+from libs.benchmark import benchmark
+from libs.logger import configure_logging
 
 matplotlib.use("TkAgg")
 
