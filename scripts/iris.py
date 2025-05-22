@@ -12,7 +12,7 @@ from logger import configure_logging
 
 def main():
     # Configure the logging
-    configure_logging()
+    configure_logging(log_level=logging.DEBUG)
 
     # Get the logger
     log = logging.getLogger(__name__)
