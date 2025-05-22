@@ -281,7 +281,7 @@ def plot_game_of_life(game_of_life: GameOfLife, path: Optional[str] = None) -> N
 
 def main():
     # configure the logger
-    configure_logging()
+    configure_logging(log_level=logging.DEBUG)
 
     # hide some libraries
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
@@ -308,7 +308,7 @@ def main():
         operation_name="run_simulation",
         log=log
     ):
-        game_of_life.run_simulation(max_generations=1000, show_progress=True)
+        game_of_life.run_simulation(max_generations=250, show_progress=True)
 
     # print the final state
     print(game_of_life)
