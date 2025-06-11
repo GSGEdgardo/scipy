@@ -16,8 +16,10 @@ dependencies:
       - pandas==2.2.3
       - pydub==0.25.1
       - scikit-image==0.25.2
+      - scikit-learn==1.7.0
       - scipy==1.15.3
       - seaborn==0.13.2
+      - streamlit==1.45.1
       - tqdm==4.67.1
       - typeguard==4.4.2
       - ydata-profiling==4.16.1
