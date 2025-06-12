@@ -20,6 +20,7 @@ dependencies:
       - scipy==1.15.3
       - seaborn==0.13.2
       - streamlit==1.45.1
+      - prophet==1.1.7
       - tqdm==4.67.1
       - typeguard==4.4.2
       - ydata-profiling==4.16.1
